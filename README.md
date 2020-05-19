@@ -1,5 +1,5 @@
 # MODAL SURVEY TO EMMA CONNECTOR:
-<u>You can download this repository as a zip file and upload it to Wordpress as a plugin.</u>
+<u>You can download this repository as a zip file by clicking on "clone or download" button and upload it to Wordpress as a plugin.</u>
 
 **Modal Survey Plugin:**
 [https://modalsurvey.pantherius.com](URL)
@@ -23,7 +23,7 @@
   * If you get a notification saying its saved  , the plugin is ready to detect Modal Survey updates.
   * If you did'nt get a notifcation ,you may have wrong information or another private key has been generated. 
  
- &divide;
+**-----------------------------------------------------------------------------**
 
   * EMMA Account has to be correct or the data will be rejected. 
   * All account data has to be entered or will also be rejected. 
