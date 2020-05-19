@@ -1,0 +1,169 @@
+<?php
+/**
+ * @package  schema_ld
+ */
+/*
+Plugin Name: Schmea LD Plugin
+Plugin URI: http://userspace.org
+Description: Ths plugin will let you easily add blocks of formated Google schmea json-ld definitions
+Version: 0.9.1
+Author: Daniel Yount aka "icarus factor"
+Author URI: http://userspace.org
+License: GPLv2 or later
+Text Domain: schmea_ld-plugin
+*/
+
+/*
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+Copyright 2020 Daniel Yount.
+*/
+
+defined( 'ABSPATH' ) or die( 'Hey, what are you doing here? You silly human!' );
+
+if ( !class_exists( 'SchmealdPlugin' ) ) {
+
+	class SchemaldPlugin
+	{
+
+		public $plugin;
+
+		function __construct() {
+			$this->plugin = plugin_basename( __FILE__ );
+		}
+
+		function register() {
+	          add_action( 'admin_menu', array( $this, 'add_admin_pages' ) );
+                  add_action('admin_print_footer_scripts', array( $this, 'add_quicktags') );      
+
+		}
+
+
+                function add_quicktags()
+                                        {
+
+                                  ?>
+				  <script type="text/javascript">
+                                  //QTags.addButton( 'test', 'TEST', '<TEST>' );
+                                  QTags.addButton( 'add_blog_schema', 'schema-ld(BLOG)',add_blog_schema);
+
+                                  function add_blog_schema() {
+				     var schemald_blog_id = prompt( 'Post URI:', '' );
+				     var schemald_blog_headline = prompt( 'Post Title:', '' );
+
+				     var schemald_blog_image = prompt( 'Post Image:', '' );
+				     var schemald_blog_height = prompt( 'Image Height:', '' );
+				     var schemald_blog_width = prompt( 'Image Width:', '' );
+				     var schemald_blog_datepub = prompt( 'Published Date:', '' );
+				     var schemald_blog_datemod = prompt( 'Date Modified:', '' );
+				     var schemald_blog_author = prompt( 'Post Author:', '' );
+				     var schemald_blog_orgname = prompt( 'Organization:', '' );
+				     var schemald_blog_logo = prompt( 'Logo:', '' );
+				     var schemald_blog_logo_width = prompt( 'Logo Width:', '' );
+				     var schemald_blog_logo_height = prompt( 'Logo Height:', '' );
+				     var schemald_blog_desc = prompt( 'Post Description:', '' );
+				     var schemald_blog_body = prompt( 'Post Body:', '' );
+
+
+	if ( schemald_blog_id ) {
+	//QTags.insertContent('<div class="' + my_class +'"></div>');
+	QTags.insertContent(
+        '<div id="schema-ld" style="display: none; visibility: hidden;" >[schema_ld]'+
+        '"@context": "http://schema.org",'+ 
+        '"@type": "BlogPosting",'+
+        '"mainEntityOfPage":{'+
+	'"@type":"WebPage",'+
+	'"@id":"'+ schemald_blog_id +'"'+
+	'},'+
+	'"headline": "'+ schemald_blog_headline +'",'+
+	'"image": {'+
+        '"@type": "ImageObject",'+
+	'"url": "'+ schemald_blog_image +'",'+
+        '"height": '+ schemald_blog_height +','+
+        '"width":  '+  schemald_blog_width +
+	'},'+
+        '"datePublished": " '+ schemald_blog_datepub +' ",'+
+        '"dateModified": " '+ schemald_blog_datemod +' ",'+
+        '"author": {'+
+        '"@type": "Person",'+
+	'"name": "'+ schemald_blog_author +'"'+
+        '},'+
+        '"publisher": {'+
+        '"@type": "Organization",'+
+        '"name": "'+ schemald_blog_orgname +'",'+ 
+        '"logo": {'+
+        '"@type": "ImageObject",'+
+	'"url": "'+ schemald_blog_logo +'",'+
+        '"width": '+ schemald_blog_logo_width +','+
+        '"height": '+ schemald_blog_logo_width +
+        '}'+
+        '},'+
+        '"description": "'+ schemald_blog_desc +'",'+
+        '"articleBody": "'+ schemald_blog_body +'"'+
+'[/schema_ld]</div>');
+   			        }
+						              }
+
+                                  </script>  
+                                  <?php
+    				        }
+
+		public function add_admin_pages() {
+			add_menu_page( 'Schmea LD', 'Schmea LD', 'manage_options', 'schemald_plugin', array( $this, 'admin_index' ), 'dashicons-store', 110 );
+		}
+
+		public function admin_index() {
+			require_once plugin_dir_path( __FILE__ ) . 'templates/admin.php';
+		}
+
+		function activate() {
+			require_once plugin_dir_path( __FILE__ ) . 'inc/schemald-plugin-activate.php';
+			SchemaldPluginActivate::activate();
+		}
+	}
+
+
+
+
+                function jsonld_insert( $atts , $content =null ) {
+
+			$Content = strip_tags($content, '<br />');  
+                        $Content = html_entity_decode( $Content );
+			$Content = str_replace('”', '"', $Content); 
+			$Content = str_replace('“', '"', $Content);
+
+
+
+                        $Contents = "<script type=\"application/ld+json\">{";
+                        $Contents .= $Content; 
+			$Contents .= "}</script>";
+		        return $Contents; 
+                }  
+
+
+	$schemaldPlugin = new SchemaldPlugin();
+	$schemaldPlugin->register();
+
+	// activation
+	register_activation_hook( __FILE__, array( $schemaldPlugin, 'activate' ) );
+
+	// deactivation
+	require_once plugin_dir_path( __FILE__ ) . 'inc/schemald-plugin-deactivate.php';
+	register_deactivation_hook( __FILE__, array( 'SchemaldPluginDeactivate', 'deactivate' ) );
+
+        //Use hooks from parent plugin.  
+	add_shortcode('schema_ld', 'jsonld_insert' );
+
+}
